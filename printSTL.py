@@ -2,7 +2,16 @@ import numpy as np
 import cv2
 
 
-def printSTL(bgr_img, cube, rvec_m_c, tm_c, R, t):
+def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
+    # Choose translation based on marker
+    MARKER_0_TRANSLATION = np.array([4.0, 4.0, 0.0])  # translation vector from marker 0
+    MARKER_1_TRANSLATION = np.array([-4.0, -4.0, 0.0])  # translation vector from marker 0
+    # Apply translation to pyramid based on which marker is present
+    if id == 0:
+        t = MARKER_0_TRANSLATION
+    if id == 1:  # If it is marker
+        t = MARKER_1_TRANSLATION
+
     R = cv2.Rodrigues(rvec_m_c)[0]  # Make 3D rotation matrix from calculated rotation vector
 
     # Build extrinsic camera matrix
