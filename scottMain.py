@@ -82,7 +82,6 @@ def main():
 
     rvec_m_c = rvecs[0]  # This is a 1x3 rotation vector
     tm_c = tvecs[0]  # This is a 1x3 translation vector
-    cv2.aruco.drawAxis(image=bgr_img, cameraMatrix=K, distCoeffs=None, rvec=rvec_m_c, tvec=tm_c, length=2)  # Draw coordinate axes on marker
 
     R = cv2.Rodrigues(rvec_m_c)[0]  # Make 3D rotation matrix from calculated rotation vector
 
@@ -169,6 +168,35 @@ def main():
 # FUNCTIONS
 
 ######################################
+def transform3Dto2D(K, Mext, points):
+    # Transforms 3D coordinates to 2D coordinates given intrinsic and extrinsic camera matrices
+    # Make point homogenous vector
+    location = np.zeros([1, 4])
+    location[0, 0:3] = points
+    location[0, 3] = 1
+    location = np.transpose(location)
+
+    im = K @ Mext @ location  # premultiply to determine 2D points
+
+    p_loc = im / im[2]  # divide by third element b/c homogenous
+    p_loc = np.round(p_loc)  # round to whole number for pixels
+    x_im = int(p_loc[0])  # convert to integer and store
+    y_im = int(p_loc[1])  # convert to integer and store
+
+    return np.array([x_im,y_im])
+
+######################################
+def drawObject(image, model, facing):
+    # Connects the points of a face based model, not drawing hidden faces.
+    t = 2 # line thickness
+    model = model[:,1:,:]
+    print("without vector:", model)
+    for i in range(np.shape(model[:,0,0])[0]):
+        if facing[i] == True:
+            for j in range(np.shape(model[0,:,0])[0]-1):
+                cv2.line(image, (int(model[i,j,0]), int(model[i,j,1])), (int(model[i,j+1,0]), int(model[i,j+1,1])), (255, 255, 255), t)
+            cv2.line(image, (int(model[i,-1,0]), int(model[i,-1,1])), (int(model[i,0,0]), int(model[i,0,1])), (255, 255, 255), t)
+
 
 
 if __name__ == "__main__":
