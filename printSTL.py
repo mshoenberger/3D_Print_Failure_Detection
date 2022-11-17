@@ -4,7 +4,7 @@ import cv2
 
 def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
     # Choose translation based on marker
-    MARKER_0_TRANSLATION = np.array([4.0, 4.0, 0.0])  # translation vector from marker 0
+    MARKER_0_TRANSLATION = np.array([-3.5, 3.5, 0.0])  # translation vector from marker 0
     MARKER_1_TRANSLATION = np.array([-4.0, -4.0, 0.0])  # translation vector from marker 0
     # Apply translation to pyramid based on which marker is present
     if id == 0:
@@ -32,9 +32,10 @@ def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
             cube2D[i,j,:] = transform3Dto2D(K, Mext, moved_cube)  # Transform from 3D coordinates to 2D coordinates
     print("original model:", cube2D)
 
-    drawObject(bgr_img, cube2D, facing)  # Draw cube
+    drawObject(bgr_img, cube2D, facing)  # Draw cube, will represent the image that the user will see
+    mask = generateBlackImage(bgr_img,cube2D, facing) #Generate a mask for isolating the print, computer will see this
 
-    return bgr_img
+    return bgr_img, mask
 
 ######################################
 def transform3Dto2D(K, Mext, points):
@@ -65,3 +66,28 @@ def drawObject(image, model, facing):
             for j in range(np.shape(model[0,:,0])[0]-1):
                 cv2.line(image, (int(model[i,j,0]), int(model[i,j,1])), (int(model[i,j+1,0]), int(model[i,j+1,1])), (255, 255, 255), t)
             cv2.line(image, (int(model[i,-1,0]), int(model[i,-1,1])), (int(model[i,0,0]), int(model[i,0,1])), (255, 255, 255), t)
+
+
+
+#Function to generate a black background with the fireframe image in the location where it should be
+#Filled in a solid color, etc
+def generateBlackImage(bgr_img, cube2D, facing):
+    print("generating")
+
+    blackImage = np.zeros(bgr_img.shape, dtype = "uint8") #Generate an all black image
+
+    #Now draw on that image
+    drawObject(blackImage, cube2D, facing) #Now black iamge has an outline of the cube
+    grayBlackImage = cv2.cvtColor(blackImage, cv2.COLOR_BGR2GRAY)
+
+    thresh, binary_img = cv2.threshold(grayBlackImage, thresh=0, maxval=255, type=cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    cnts, heiarchy = cv2.findContours(binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    #cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    cv2.fillPoly(blackImage, cnts, [255, 255, 255])
+
+    return blackImage #Return the mask image
+
+
+
+
