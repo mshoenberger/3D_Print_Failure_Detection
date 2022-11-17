@@ -30,7 +30,7 @@ def generateBaseImages(image_name):
     bgr_img = cv2.imread(image_name)
 
     #Conduct scaling upon the image to make it smaller
-    scale_percent = 100 #25% of OG size
+    scale_percent = 25 #25% of OG size
     bgr_img = cv2.resize(bgr_img, (int(bgr_img.shape[1] * scale_percent / 100), int(bgr_img.shape[0] * scale_percent / 100)),
                interpolation=cv2.INTER_AREA)
 

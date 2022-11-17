@@ -14,6 +14,8 @@ def generateMaskedImage(normalImage, maskImage):
     print(maskImage.shape)
 
     filteredImage = cv2.bitwise_and(normalImage, normalImage, mask = maskImage)
-    cv2.imshow("filtered Image",filteredImage)
     cv2.imshow("normalImage", normalImage)
+    cv2.imshow("filtered Image",filteredImage)
     cv2.waitKey(0)
+
+    return filteredImage

@@ -12,7 +12,7 @@ import math
 from printSTL import printSTL
 from colorIsolation import colorIsolate
 from aruco import arucoSetup
-from  edgeDetection import edgeDetection
+from edgeDetection import edgeDetection
 from imageImporter import importImageNames, generateBaseImages
 from generateMask import generateMaskedImage
 
