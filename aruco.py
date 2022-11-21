@@ -31,6 +31,7 @@ def arucoSetup(bgr_img, cube, K):
     rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners=corners, markerLength=1.25, cameraMatrix=K, distCoeffs=None)  # Calculate pose of markers
     cv2.aruco.drawDetectedMarkers(image=bgr_img, corners=corners, ids=ids, borderColor=(0, 0, 255)) #And draw the markers on the image
 
+    print(ids)
     #Now we must find the indices of the zero or 1 (prioritize 0 over 1)
 
     #We will prioritize aruco id 0 as there is no rotational concerns

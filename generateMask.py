@@ -17,3 +17,5 @@ def generateMaskedImage(normalImage, maskImage):
     cv2.imshow("filtered Image",filteredImage)
     cv2.imshow("normalImage", normalImage)
     cv2.waitKey(0)
+
+    return filteredImage

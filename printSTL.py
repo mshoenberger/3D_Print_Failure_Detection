@@ -4,7 +4,8 @@ import cv2
 
 def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
     # Choose translation based on marker
-    MARKER_0_TRANSLATION = np.array([-3.5, 3.5, 0.0])  # translation vector from marker 0
+    #MARKER_0_TRANSLATION = np.array([4.0, 4.0, 0.0])  # translation vector from marker 0
+    MARKER_0_TRANSLATION = np.array([-3.5, 3.25, 0.0])  # translation vector from marker 0
     MARKER_1_TRANSLATION = np.array([-4.0, -4.0, 0.0])  # translation vector from marker 0
     # Apply translation to pyramid based on which marker is present
     if id == 0:
@@ -33,9 +34,9 @@ def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
     print("original model:", cube2D)
 
     drawObject(bgr_img, cube2D, facing)  # Draw cube, will represent the image that the user will see
-    mask = generateBlackImage(bgr_img,cube2D, facing) #Generate a mask for isolating the print, computer will see this
+    mask, outline = generateBlackImage(bgr_img,cube2D, facing) #Generate a mask for isolating the print, computer will see this
 
-    return bgr_img, mask
+    return bgr_img, mask, outline
 
 ######################################
 def transform3Dto2D(K, Mext, points):
@@ -78,6 +79,9 @@ def generateBlackImage(bgr_img, cube2D, facing):
 
     #Now draw on that image
     drawObject(blackImage, cube2D, facing) #Now black iamge has an outline of the cube
+
+    modelOutline = blackImage.copy()
+
     grayBlackImage = cv2.cvtColor(blackImage, cv2.COLOR_BGR2GRAY)
 
     thresh, binary_img = cv2.threshold(grayBlackImage, thresh=0, maxval=255, type=cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -86,8 +90,7 @@ def generateBlackImage(bgr_img, cube2D, facing):
     #cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     cv2.fillPoly(blackImage, cnts, [255, 255, 255])
 
-    return blackImage #Return the mask image
-
+    return blackImage, modelOutline #Return the mask image
 
 
 

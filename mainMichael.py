@@ -20,7 +20,7 @@ from generateMask import generateMaskedImage
 #########################################################################################
 #GLOBAL VARIABLES, USED TO HAVE A LOCATION TO EASILY MODIFY
 # Hard coded a cube model, used to represent an input file with faces defined and a normal vector for each face
-h = 1
+h = .3
 cube = np.array([[[0, 0, -1],
                   [0.5, 0.5, 0],
                   [0.5, -0.5, 0],
@@ -62,7 +62,7 @@ def main():
     imageNameList = importImageNames()
 
     #Get the normal image, the gray image, threshold image, and generate a HSV image
-    defaultImage, grayImage, thresholdImage, hsvImage = generateBaseImages(imageNameList[1])
+    defaultImage, grayImage, thresholdImage, hsvImage = generateBaseImages(imageNameList[0])
     defaultCopy = defaultImage.copy()
 
 

@@ -4,20 +4,25 @@
 #########################################################################################
 #Import the required libraries and other functionality desired
 
-import os
 import cv2
 import numpy as np
 import math
-import glob
-from mainMichael import arucoSetup
+
+#IMPORT THE FUNCTIONS FROM FILES, USED TO PREVENT GITHUB COLLABORATION ISSUES AND TO PROMOTE SMALL BLOCKS OF FUNCTIONALITY FOR DEBUGGING/EXPANSION
 from printSTL import printSTL
+from colorIsolation import colorIsolate
+from aruco import arucoSetup
+from  edgeDetection import edgeDetection
+from imageImporter import importImageNames, generateBaseImages
+from generateMask import generateMaskedImage
+from whiteCount import obtainWhiteCount
+from failureAlgorithm import isFailure
+
 
 #########################################################################################
-#GLOBAL VARAIBLES
-
-IMAGE_DIRECTORY = 'print_failure_detection_images' #File path for the images we will use from current file
-
-h = 0.3
+#GLOBAL VARIABLES, USED TO HAVE A LOCATION TO EASILY MODIFY
+# Hard coded a cube model, used to represent an input file with faces defined and a normal vector for each face
+h = 1
 cube = np.array([[[0, 0, -1],
                   [0.5, 0.5, 0],
                   [0.5, -0.5, 0],
@@ -49,23 +54,91 @@ cube = np.array([[[0, 0, -1],
                   [-0.5, -0.5, h],
                   [-0.5, 0.5, h]]])
 
+
+#MAIN METHOD
+
+#Main method to conduct the process
 def main():
 
-    assert (os.path.exists(IMAGE_DIRECTORY))
-    image_file_names = glob.glob(os.path.join(IMAGE_DIRECTORY, "*.jpg"))
-    assert (len(image_file_names) > -0)
+    #Get the image names for a folder as specific in the importImageNames function
+    imageNameList = importImageNames()
 
-    bgr_img = cv2.imread(image_file_names[0])
-    scale_percent = 25  # percent of original size
-    bgr_img = cv2.resize(bgr_img, (int(bgr_img.shape[1] * scale_percent / 100), int(bgr_img.shape[0] * scale_percent / 100)), interpolation=cv2.INTER_AREA)
+    #Get the normal image, the gray image, threshold image, and generate a HSV image
+    defaultImage, grayImage, thresholdImage, hsvImage = generateBaseImages(imageNameList[11])
+    defaultCopy = defaultImage.copy()
 
-    K = np.array([[800.0, 0.0, np.shape(bgr_img)[1] / 2],  # Intrinsic camera properties matrix for calculating pose
-                  [0.0, 800.0, np.shape(bgr_img)[0] / 2],
+
+    #Get image dimensions, may have value later
+    imageHeight = defaultImage.shape[0]
+    imageWidth = defaultImage.shape[1]
+
+    #Define camera matrix, was derrived from the camera calibration technqiues/scripts provided in lecture
+    K = np.array([[2389.0, 0.0, np.shape(defaultImage)[1] / 2],  # Intrinsic camera properties matrix for calculating pose
+                  [0.0, 2423.0, np.shape(defaultImage)[0] / 2],
                   [0.0, 0.0, 1.0]])
 
-    id, r_vecs, t_vecs = arucoSetup(bgr_img, K)
 
-    printSTL(bgr_img, cube, K, id, r_vecs, t_vecs)
 
+
+    #Conduct aruco setup and capture the aruco ID of interest, along with the rvec_m_c and tm_c
+    markerID, rvec_m_c, tm_c = arucoSetup(defaultImage,cube, K)
+    print(markerID)
+    print(rvec_m_c)
+    print(tm_c)
+
+    #At this point, we are getting a transition that is not good
+
+    if(markerID == -1):
+        print("ERROR: NO MARKER DETECTED. IN A VIDEO THIS WOULD JUST MOVE TO NEXT FRAME OR END THIS ITERATION")
+
+
+    defaultCopy = defaultImage.copy()
+    #Now that we have the aruco ID and the respective marker properties, conduct printSTL to draw the STL object
+    userImage, blackMask, outline = printSTL(defaultImage, cube, K, markerID, rvec_m_c, tm_c)
+
+    #Obtain the number of pixels used actually allowed by the mask, will be used for later error detection algorithm
+    maskPixelCount = obtainWhiteCount(blackMask, outline)
+
+    print("number of white Pixels is: " + str(maskPixelCount))
+
+
+    #At this point we have the current image with the end model drawn on it
+    #And at this point we have a black mask that can be used to isolate the rest of the image, lets work on that next
+
+    maskedImage = generateMaskedImage(defaultCopy, blackMask)
+
+    #Keep around just in case we want to use color isolation for anything important
+    #conductColorIsolation = False
+
+    #if conductColorIsolation:
+
+    #    filamentColor = "gray"
+    #    isolatedColorImageBlurry = colorIsolate(hsvImage, defaultImage, filamentColor)
+    #    grayImage = isolatedColorImageBlurry
+
+    #Convert masked image to a gray image
+    sigma = 3
+    gray_image = cv2.GaussianBlur(
+        src=maskedImage,
+        ksize=(0, 0),  # kernel size (should be odd numbers; if 0, compute it from sigma)
+        sigmaX=sigma , sigmaY=sigma)
+    _, thresh_img = cv2.threshold(gray_image, 200, 255, type=cv2.THRESH_BINARY)
+
+    cv2.imshow("show gray", gray_image)
+    cv2.waitKey(0)
+
+
+    #Now to generate the edge image
+    edge_image = edgeDetection(gray_image, outline)
+
+    #Now to conduct the analysis of the data and return a failure or not
+    if isFailure(edge_image, maskPixelCount):
+        print("PRINT FAILURE DETECTED")
+    else:
+        print("NO FAILURE DETECTED")
+
+
+
+#Used to assist in the use of a main function, tells where to point
 if __name__ == "__main__":
-    main()
+        main()
