@@ -5,7 +5,7 @@ import cv2
 def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
     # Choose translation based on marker
     #MARKER_0_TRANSLATION = np.array([4.0, 4.0, 0.0])  # translation vector from marker 0
-    MARKER_0_TRANSLATION = np.array([-3.5, 3.25, 0.0])  # translation vector from marker 0
+    MARKER_0_TRANSLATION = np.array([-3.45, 3.25, 0.0])  # translation vector from marker 0
     MARKER_1_TRANSLATION = np.array([-4.0, -4.0, 0.0])  # translation vector from marker 0
     # Apply translation to pyramid based on which marker is present
     if id == 0:

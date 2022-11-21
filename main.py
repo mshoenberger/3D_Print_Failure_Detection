@@ -131,11 +131,15 @@ def main():
     #Now to generate the edge image
     edge_image = edgeDetection(gray_image, outline)
 
+    cv2.imshow("THE EDGE IMAGE USED", edge_image)
+    cv2.waitKey(0)
+
     #Now to conduct the analysis of the data and return a failure or not
     if isFailure(edge_image, maskPixelCount):
         print("PRINT FAILURE DETECTED")
     else:
         print("NO FAILURE DETECTED")
+
 
 
 

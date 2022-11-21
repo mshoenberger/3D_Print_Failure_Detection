@@ -37,12 +37,12 @@ def main():
     cv2.imshow("bgr_image", bgr_img)
     cv2.waitKey()
 
-    K = np.array([[2389.0, 0.0, np.shape(bgr_img)[1] / 2],  # Intrinsic camera properties matrix for calculating pose
-                  [0.0, 2423.0, np.shape(bgr_img)[0] / 2],
+    K = np.array([[800.0, 0.0, np.shape(bgr_img)[1] / 2],  # Intrinsic camera properties matrix for calculating pose
+                  [0.0, 800.0, np.shape(bgr_img)[0] / 2],
                   [0.0, 0.0, 1.0]])
 
-    t0 = np.array([-4.0, 4.0, 0.0])  # translation vector from marker 0
-
+    t0 = np.array([-3.4, 3.19, 0.0])  # translation vector from marker 0
+    h = 0.3
     cube = np.array([[[0, 0, -1],
                       [0.5, 0.5, 0],
                       [0.5, -0.5, 0],
@@ -51,28 +51,28 @@ def main():
                      [[1, 0, 0],
                       [0.5, 0.5, 0],
                       [0.5, -0.5, 0],
-                      [0.5, -0.5, 1],
-                      [0.5, 0.5, 1]],
+                      [0.5, -0.5, h],
+                      [0.5, 0.5, h]],
                      [[0, 1, 0],
                       [0.5, 0.5, 0],
                       [-0.5, 0.5, 0],
-                      [-0.5, 0.5, 1],
-                      [0.5, 0.5, 1]],
+                      [-0.5, 0.5, h],
+                      [0.5, 0.5, h]],
                      [[-1, 0, 0],
                       [-0.5, 0.5, 0],
                       [-0.5, -0.5, 0],
-                      [-0.5, -0.5, 1],
-                      [-0.5, 0.5, 1]],
+                      [-0.5, -0.5, h],
+                      [-0.5, 0.5, h]],
                      [[0, -1, 0],
                       [0.5, -0.5, 0],
                       [-0.5, -0.5, 0],
-                      [-0.5, -0.5, 1],
-                      [0.5, -0.5, 1]],
+                      [-0.5, -0.5, h],
+                      [0.5, -0.5, h]],
                      [[0, 0, 1],
-                      [0.5, 0.5, 1],
-                      [0.5, -0.5, 1],
-                      [-0.5, -0.5, 1],
-                      [-0.5, 0.5, 1]]])
+                      [0.5, 0.5, h],
+                      [0.5, -0.5, h],
+                      [-0.5, -0.5, h],
+                      [-0.5, 0.5, h]]])
 
     # Detect markers
     corners, ids, _ = cv2.aruco.detectMarkers(image=bgr_img, dictionary=arucoDict)    # Identify markers

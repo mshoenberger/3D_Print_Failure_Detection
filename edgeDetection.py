@@ -32,8 +32,8 @@ def edgeDetection(grayBlurredImage, modelOutline):
     #            cv2.imshow("Edge image", edge_img)
     #            cv2.waitKey(0)
 
-    low_thresh = 0
-    high_thresh = 100
+    low_thresh = 4
+    high_thresh = 25
     edge_img = cv2.Canny(grayBlurredImage, low_thresh, high_thresh, L2gradient=True)
 
     flippedOutline = cv2.cvtColor(flippedOutline, cv2.COLOR_BGR2GRAY)
