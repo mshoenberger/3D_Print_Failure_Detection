@@ -73,8 +73,8 @@ def main():
     imageWidth = defaultImage.shape[1]
 
     #Define camera matrix, was derrived from the camera calibration technqiues/scripts provided in lecture
-    K = np.array([[2389.0, 0.0, np.shape(defaultImage)[1] / 2],  # Intrinsic camera properties matrix for calculating pose
-                  [0.0, 2423.0, np.shape(defaultImage)[0] / 2],
+    K = np.array([[710.0, 0.0, np.shape(defaultImage)[1] / 2],  # Intrinsic camera properties matrix for calculating pose
+                  [0.0, 700.0, np.shape(defaultImage)[0] / 2],
                   [0.0, 0.0, 1.0]])
 
 
@@ -82,9 +82,7 @@ def main():
 
     #Conduct aruco setup and capture the aruco ID of interest, along with the rvec_m_c and tm_c
     markerID, rvec_m_c, tm_c = arucoSetup(defaultImage,cube, K)
-    print(markerID)
-    print(rvec_m_c)
-    print(tm_c)
+
 
     #At this point, we are getting a transition that is not good
 
@@ -107,6 +105,13 @@ def main():
 
     maskedImage = generateMaskedImage(defaultCopy, blackMask)
 
+    # Make gray blurred image from isolated image for edge detection
+    grayMask = cv2.cvtColor(maskedImage, cv2.COLOR_BGR2GRAY)
+    # clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    # grayMask = clahe.apply(grayMask[300:360,445:520])
+    # cv2.imshow("histequal", grayMask)
+    # cv2.waitKey(0)
+
     #Keep around just in case we want to use color isolation for anything important
     #conductColorIsolation = False
 
@@ -117,22 +122,18 @@ def main():
     #    grayImage = isolatedColorImageBlurry
 
     #Convert masked image to a gray image
-    sigma = 3
-    gray_image = cv2.GaussianBlur(
-        src=maskedImage,
+    sigma = 1
+    grayMask = cv2.GaussianBlur(
+        src=grayMask,
         ksize=(0, 0),  # kernel size (should be odd numbers; if 0, compute it from sigma)
-        sigmaX=sigma , sigmaY=sigma)
-    _, thresh_img = cv2.threshold(gray_image, 200, 255, type=cv2.THRESH_BINARY)
-
-    cv2.imshow("show gray", gray_image)
+        sigmaX=sigma, sigmaY=sigma)
+    cv2.imshow("show gray", grayMask)
     cv2.waitKey(0)
 
 
     #Now to generate the edge image
-    edge_image = edgeDetection(gray_image, outline)
+    edge_image = edgeDetection(grayMask, outline, userImage)
 
-    cv2.imshow("THE EDGE IMAGE USED", edge_image)
-    cv2.waitKey(0)
 
     #Now to conduct the analysis of the data and return a failure or not
     if isFailure(edge_image, maskPixelCount):
