@@ -16,7 +16,7 @@ def isFailure(edge_image, whiteMaxCount):
     totalFractionUsed = (edgeWhiteCount / whiteMaxCount) * 100
     print(totalFractionUsed)
 
-    if totalFractionUsed > 2:
+    if totalFractionUsed > 6:
         return True
 
     return False

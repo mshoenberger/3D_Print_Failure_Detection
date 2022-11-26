@@ -59,7 +59,7 @@ def transform3Dto2D(K, Mext, points):
 ######################################
 def drawObject(image, model, facing):
     # Connects the points of a face based model, not drawing hidden faces.
-    t = 1 # line thickness
+    t = 2 # line thickness
     model = model[:,1:,:]
     print("without vector:", model)
     for i in range(np.shape(model[:,0,0])[0]):

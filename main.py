@@ -16,6 +16,7 @@ from  edgeDetection import edgeDetection
 from imageImporter import importImageNames, generateBaseImages
 from generateMask import generateMaskedImage
 from whiteCount import obtainWhiteCount
+from whiteCount import countWhitePixels
 from failureAlgorithm import isFailure
 
 
@@ -64,7 +65,7 @@ def main():
     imageNameList = importImageNames()
 
     #Get the normal image, the gray image, threshold image, and generate a HSV image
-    defaultImage, grayImage, thresholdImage, hsvImage = generateBaseImages(imageNameList[11])
+    defaultImage = generateBaseImages(imageNameList[11])
     defaultCopy = defaultImage.copy()
 
 
@@ -78,8 +79,6 @@ def main():
                   [0.0, 0.0, 1.0]])
 
 
-
-
     #Conduct aruco setup and capture the aruco ID of interest, along with the rvec_m_c and tm_c
     markerID, rvec_m_c, tm_c = arucoSetup(defaultImage,cube, K)
 
@@ -90,9 +89,12 @@ def main():
         print("ERROR: NO MARKER DETECTED. IN A VIDEO THIS WOULD JUST MOVE TO NEXT FRAME OR END THIS ITERATION")
 
 
-    defaultCopy = defaultImage.copy()
     #Now that we have the aruco ID and the respective marker properties, conduct printSTL to draw the STL object
     userImage, blackMask, outline = printSTL(defaultImage, cube, K, markerID, rvec_m_c, tm_c)
+
+
+    #Generate the white pixel count of the black mask, so we know how many pixels we have for color isolation
+    colorIsolateWhiteCount = countWhitePixels(blackMask)
 
     #Obtain the number of pixels used actually allowed by the mask, will be used for later error detection algorithm
     maskPixelCount = obtainWhiteCount(blackMask, outline)
@@ -105,6 +107,20 @@ def main():
 
     maskedImage = generateMaskedImage(defaultCopy, blackMask)
 
+    # Now to use a naive method to check if the object is in the bounded area... CHECK FOR COLOR!
+    # Isolate the color and see how many pixels there are of that color
+    conductColorIsolation = True
+    if conductColorIsolation:
+        filamentColor = "gray"
+        isObjectThere = colorIsolate(maskedImage, filamentColor, colorIsolateWhiteCount)
+
+        if not isObjectThere:
+            print("OBJECT NOT IN FRAME VIA COLOR ISOLATION METHOD. PRINT FAILURE DETECTED")
+        else:
+            print("Object is reasonably intuited to be in frame, continuing program")
+
+
+
     # Make gray blurred image from isolated image for edge detection
     grayMask = cv2.cvtColor(maskedImage, cv2.COLOR_BGR2GRAY)
     # clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
@@ -112,14 +128,6 @@ def main():
     # cv2.imshow("histequal", grayMask)
     # cv2.waitKey(0)
 
-    #Keep around just in case we want to use color isolation for anything important
-    #conductColorIsolation = False
-
-    #if conductColorIsolation:
-
-    #    filamentColor = "gray"
-    #    isolatedColorImageBlurry = colorIsolate(hsvImage, defaultImage, filamentColor)
-    #    grayImage = isolatedColorImageBlurry
 
     #Convert masked image to a gray image
     sigma = 1

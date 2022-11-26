@@ -34,18 +34,5 @@ def generateBaseImages(image_name):
     bgr_img = cv2.resize(bgr_img, (int(bgr_img.shape[1] * scale_percent / 100), int(bgr_img.shape[0] * scale_percent / 100)),
                interpolation=cv2.INTER_AREA)
 
-    #Now we have a rescaled image, time to generate a gray image and threshold image for Aruco codes
-    gray_image = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2GRAY)
-
-    sigma = 3
-    gray_image = cv2.GaussianBlur(
-        src=gray_image,
-        ksize=(0, 0),  # kernel size (should be odd numbers; if 0, compute it from sigma)
-        sigmaX=sigma , sigmaY=sigma)
-    _, thresh_img = cv2.threshold(gray_image, 200, 255, type=cv2.THRESH_BINARY)
-
-    #and finally generate a HSV image in case we ever want to use it
-    hsv_image = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2HSV)
-
     #Return all 3 generated images as we may need to process them
-    return bgr_img, gray_image, thresh_img, hsv_image
+    return bgr_img

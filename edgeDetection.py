@@ -65,6 +65,7 @@ def edgeDetection(grayBlurredImage, modelOutline, colorImage):
             lines=None,
             minLineLength=int(edge_img.shape[1] * MIN_LINE_LENGTH_FRACTION),
             maxLineGap=10)
+
     print("Found %d line segments" % len(houghLines))
 
     # For visualizing the lines, draw the original image.

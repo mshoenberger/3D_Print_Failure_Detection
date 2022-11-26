@@ -7,7 +7,6 @@ import cv2
 #Used to find the count of white pixels when eliminating white pixels that are of the model outline. This will help be more realistic to the analysis done later on
 def obtainWhiteCount(blackMask, outline):
 
-    cv2.imshow("og outline", outline)
 
     returnImage = blackMask.copy()
     flippedOutline = cv2.bitwise_not(outline)
@@ -17,9 +16,12 @@ def obtainWhiteCount(blackMask, outline):
 
     outlinedImage = cv2.cvtColor(outlinedImage, cv2.COLOR_BGR2GRAY)
 
-    cv2.imshow("OUTLINE ACCOUNT", outlinedImage)
-
-
     maskPixelCount = np.sum(outlinedImage == 255)
     return maskPixelCount
+
+
+
+def countWhitePixels(image):
+
+    return np.sum(image == 255)
 
