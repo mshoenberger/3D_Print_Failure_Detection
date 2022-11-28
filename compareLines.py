@@ -19,19 +19,27 @@ def compareLines(hough, model):
         h = h[0]
         hSlope[i] = (h[3]-h[1])/(h[2]-h[0])
         hIntercept[i] = h[1]-hSlope[i]*h[0]
-    mSlopeTruth = np.zeros(len(mSlope))
-    hSlopeTruth = np.zeros(len(hSlope))
+    mSlopeTruth = np.full(len(mSlope), False)
+    hSlopeTruth = np.full(len(hSlope), False)
     for i in range(0,len(mSlope)):
         for j in range(0,len(hSlope)):
             if abs(mSlope[i] - hSlope[j]) < 0.2:
                 mSlopeTruth[i] = True
                 hSlopeTruth[j] = True
+    mInterceptTruth = np.full(len(mIntercept), False)
+    hInterceptTruth = np.full(len(hIntercept), False)
+    for i in range(0, len(mIntercept)):
+        for j in range(0, len(hIntercept)):
+            if abs(mIntercept[i] - hIntercept[j]) < 20:
+                mInterceptTruth[i] = True
+                hInterceptTruth[j] = True
 
-    #print("mSlopes:", mSlope)
-    #print("hSlopes:", hSlope)
+    mTruth = mSlopeTruth & mInterceptTruth
+    hTruth = hSlopeTruth & hInterceptTruth
+
     #print("mTruths:", mTruth)
     #print("hTruths:", hTruth)
-    nonMatches = np.count_nonzero(mSlopeTruth==0) + np.count_nonzero(hSlopeTruth==0)
+    nonMatches = np.count_nonzero(mTruth==0) + np.count_nonzero(hTruth==0)
     print("number of non-matches:", nonMatches)
     if nonMatches > 5:
         print("PRINT FAILURE DETECTED")

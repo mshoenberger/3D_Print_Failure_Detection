@@ -153,7 +153,6 @@ def main():
     compareLines(houghLines, modelLines)
 
 
-
 #Used to assist in the use of a main function, tells where to point
 if __name__ == "__main__":
         main()
