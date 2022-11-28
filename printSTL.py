@@ -31,12 +31,11 @@ def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
         for j in range(np.shape(cube[0,:,0])[0]):
             moved_cube = cube[i,j,:] + t
             cube2D[i,j,:] = transform3Dto2D(K, Mext, moved_cube)  # Transform from 3D coordinates to 2D coordinates
-    print("original model:", cube2D)
 
-    drawObject(bgr_img, cube2D, facing)  # Draw cube, will represent the image that the user will see
+    modelLines = drawObject(bgr_img, cube2D, facing)  # Draw cube, will represent the image that the user will see
     mask, outline = generateBlackImage(bgr_img,cube2D, facing) #Generate a mask for isolating the print, computer will see this
 
-    return bgr_img, mask, outline
+    return bgr_img, mask, outline, modelLines
 
 ######################################
 def transform3Dto2D(K, Mext, points):
@@ -61,19 +60,21 @@ def drawObject(image, model, facing):
     # Connects the points of a face based model, not drawing hidden faces.
     t = 2 # line thickness
     model = model[:,1:,:]
-    print("without vector:", model)
+    modelLines = []
     for i in range(np.shape(model[:,0,0])[0]):
         if facing[i] == True:
             for j in range(np.shape(model[0,:,0])[0]-1):
+                modelLines.append(np.array([int(model[i,j,0]), int(model[i,j,1]), int(model[i,j+1,0]), int(model[i,j+1,1])]))
                 cv2.line(image, (int(model[i,j,0]), int(model[i,j,1])), (int(model[i,j+1,0]), int(model[i,j+1,1])), (255, 255, 255), t)
+            modelLines.append(np.array([int(model[i,-1,0]), int(model[i,-1,1]), int(model[i,0,0]), int(model[i,0,1])]))
             cv2.line(image, (int(model[i,-1,0]), int(model[i,-1,1])), (int(model[i,0,0]), int(model[i,0,1])), (255, 255, 255), t)
-
+    return modelLines
 
 
 #Function to generate a black background with the fireframe image in the location where it should be
 #Filled in a solid color, etc
 def generateBlackImage(bgr_img, cube2D, facing):
-    print("generating")
+    print("generating black image")
 
     blackImage = np.zeros(bgr_img.shape, dtype = "uint8") #Generate an all black image
 

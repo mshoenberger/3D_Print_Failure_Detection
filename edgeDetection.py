@@ -67,6 +67,7 @@ def edgeDetection(grayBlurredImage, modelOutline, colorImage):
             maxLineGap=10)
 
     print("Found %d line segments" % len(houghLines))
+    print("lines: ", houghLines)
 
     # For visualizing the lines, draw the original image.
     for i in range(0, len(houghLines)):
@@ -87,19 +88,7 @@ def edgeDetection(grayBlurredImage, modelOutline, colorImage):
     cv2.imshow("filtered edge",filteredEdge_img)
     cv2.waitKey(0)
 
-    return filteredEdge_img
-
-def drawObject(image, model, facing):
-    # Connects the points of a face based model, not drawing hidden faces.
-    t = 2 # line thickness
-    model = model[:,1:,:]
-    print("without vector:", model)
-    for i in range(np.shape(model[:,0,0])[0]):
-        if facing[i] == True:
-            for j in range(np.shape(model[0,:,0])[0]-1):
-                cv2.line(image, (int(model[i,j,0]), int(model[i,j,1])), (int(model[i,j+1,0]), int(model[i,j+1,1])), (255, 255, 255), t)
-            cv2.line(image, (int(model[i,-1,0]), int(model[i,-1,1])), (int(model[i,0,0]), int(model[i,0,1])), (255, 255, 255), t)
-
+    return filteredEdge_img, houghLines
 
 # Nothing function
 def nothing(x):

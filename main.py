@@ -18,6 +18,7 @@ from generateMask import generateMaskedImage
 from whiteCount import obtainWhiteCount
 from whiteCount import countWhitePixels
 from failureAlgorithm import isFailure
+from compareLines import compareLines
 
 
 #########################################################################################
@@ -90,7 +91,7 @@ def main():
 
 
     #Now that we have the aruco ID and the respective marker properties, conduct printSTL to draw the STL object
-    userImage, blackMask, outline = printSTL(defaultImage, cube, K, markerID, rvec_m_c, tm_c)
+    userImage, blackMask, outline, modelLines = printSTL(defaultImage, cube, K, markerID, rvec_m_c, tm_c)
 
 
     #Generate the white pixel count of the black mask, so we know how many pixels we have for color isolation
@@ -140,7 +141,7 @@ def main():
 
 
     #Now to generate the edge image
-    edge_image = edgeDetection(grayMask, outline, userImage)
+    edge_image, houghLines = edgeDetection(grayMask, outline, userImage)
 
 
     #Now to conduct the analysis of the data and return a failure or not
@@ -149,6 +150,7 @@ def main():
     else:
         print("NO FAILURE DETECTED")
 
+    compareLines(houghLines, modelLines)
 
 
 
