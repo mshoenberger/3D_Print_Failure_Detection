@@ -41,5 +41,11 @@ def compareLines(hough, model):
     #print("hTruths:", hTruth)
     nonMatches = np.count_nonzero(mTruth==0) + np.count_nonzero(hTruth==0)
     print("number of non-matches:", nonMatches)
-    if nonMatches > 5:
+    if nonMatches > 9:
         print("PRINT FAILURE DETECTED")
+        failed = True
+    else:
+        print("NO PRINT FAILURE DETECTED")
+        failed = False
+
+    return failed

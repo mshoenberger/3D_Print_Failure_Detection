@@ -5,7 +5,7 @@ import glob
 import numpy as np
 import os
 
-IMAGE_DIRECTORY = 'print_failure_detection_images' #File path for the images we will use from current file
+IMAGE_DIRECTORY = 'new_print_failure_detection_images' #File path for the images we will use from current file
 
 
 #Function to bring in file and ensure that error checking is done for improper file paths, etc

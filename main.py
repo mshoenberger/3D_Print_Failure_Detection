@@ -24,7 +24,7 @@ from compareLines import compareLines
 #########################################################################################
 #GLOBAL VARIABLES, USED TO HAVE A LOCATION TO EASILY MODIFY
 # Hard coded a cube model, used to represent an input file with faces defined and a normal vector for each face
-h = 1
+h = 0.5
 cube = np.array([[[0, 0, -1],
                   [0.5, 0.5, 0],
                   [0.5, -0.5, 0],
@@ -54,7 +54,7 @@ cube = np.array([[[0, 0, -1],
                   [0.5, 0.5, h],
                   [0.5, -0.5, h],
                   [-0.5, -0.5, h],
-                  [-0.5, 0.5, h]]])
+                  [-0.5, 0.5, h]]])*1.5
 
 
 #MAIN METHOD
@@ -66,7 +66,7 @@ def main():
     imageNameList = importImageNames()
 
     #Get the normal image, the gray image, threshold image, and generate a HSV image
-    defaultImage = generateBaseImages(imageNameList[11])
+    defaultImage = generateBaseImages(imageNameList[3])
     defaultCopy = defaultImage.copy()
 
 
@@ -147,10 +147,18 @@ def main():
     #Now to conduct the analysis of the data and return a failure or not
     if isFailure(edge_image, maskPixelCount):
         print("PRINT FAILURE DETECTED")
+        failedPixel = True
     else:
         print("NO FAILURE DETECTED")
+        failedPixel = False
 
-    compareLines(houghLines, modelLines)
+    failedLines = compareLines(houghLines, modelLines)
+
+    failedFinal = failedPixel or failedLines
+    if failedFinal == True:
+        print("FINAL DECISION: FAILED")
+    else:
+        print("FINAL DECISION: NOT FAILED")
 
 
 #Used to assist in the use of a main function, tells where to point

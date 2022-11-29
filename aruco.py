@@ -28,7 +28,7 @@ def arucoSetup(bgr_img, cube, K):
         return -1, -1, -1
 
     #At this point, we know that we have 1 and/or 0 aruco id's, generate the entire set of rvecs and tvecs
-    rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners=corners, markerLength=1.25, cameraMatrix=K, distCoeffs=None)  # Calculate pose of markers
+    rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners=corners, markerLength=1.5, cameraMatrix=K, distCoeffs=None)  # Calculate pose of markers
     cv2.aruco.drawDetectedMarkers(image=bgr_img, corners=corners, ids=ids, borderColor=(0, 0, 255)) #And draw the markers on the image
 
     print(ids)

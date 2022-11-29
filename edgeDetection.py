@@ -35,8 +35,8 @@ def edgeDetection(grayBlurredImage, modelOutline, colorImage):
 
 
     cv2.namedWindow("Edge image")  # Make window
-    cv2.createTrackbar("t", "Edge image", 16, 220, nothing)
-    cv2.createTrackbar("dividor", "Edge image", 2, 5, nothing)
+    cv2.createTrackbar("t", "Edge image", 8, 220, nothing)
+    cv2.createTrackbar("dividor", "Edge image", 1, 5, nothing)
     cv2.setTrackbarMin("dividor", "Edge image", 1)
     cv2.createTrackbar("multiplier", "Edge image", 2, 3, nothing)
     cv2.setTrackbarMin("multiplier", "Edge image", 1)
@@ -67,7 +67,6 @@ def edgeDetection(grayBlurredImage, modelOutline, colorImage):
             maxLineGap=10)
 
     print("Found %d line segments" % len(houghLines))
-    print("lines: ", houghLines)
 
     # For visualizing the lines, draw the original image.
     for i in range(0, len(houghLines)):
