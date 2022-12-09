@@ -1,11 +1,14 @@
+#Authors: Michael Shoenberger and Scott Crowner
+
 import numpy as np
 import cv2
 
 
+#Function used to print the STL file
 def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
     # Choose translation based on marker
     #MARKER_0_TRANSLATION = np.array([4.0, 4.0, 0.0])  # translation vector from marker 0
-    MARKER_0_TRANSLATION = np.array([-3.4, 3.2, 0.0])  # translation vector from marker 0
+    MARKER_0_TRANSLATION = np.array([-3.48, 3.23, 0.0])  # translation vector from marker 0
     MARKER_1_TRANSLATION = np.array([-4.0, -4.0, 0.0])  # translation vector from marker 0
     # Apply translation to pyramid based on which marker is present
     if id == 0:
@@ -38,6 +41,8 @@ def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
     return bgr_img, mask, outline, modelLines
 
 ######################################
+
+#Function to conduct the transformation from 3D to 2D space. Taken from class lecture content
 def transform3Dto2D(K, Mext, points):
     # Transforms 3D coordinates to 2D coordinates given intrinsic and extrinsic camera matrices
     # Make point homogenous vector
@@ -56,6 +61,8 @@ def transform3Dto2D(K, Mext, points):
     return np.array([x_im,y_im])
 
 ######################################
+
+#Special rendering function used to draw the object onto the screen
 def drawObject(image, model, facing):
     # Connects the points of a face based model, not drawing hidden faces.
     t = 2 # line thickness
@@ -73,6 +80,7 @@ def drawObject(image, model, facing):
 
 #Function to generate a black background with the fireframe image in the location where it should be
 #Filled in a solid color, etc
+#Modified function that is meant to provide a copy of the hard coded computer model in black and white
 def generateBlackImage(bgr_img, cube2D, facing):
     print("generating black image")
 
@@ -81,14 +89,17 @@ def generateBlackImage(bgr_img, cube2D, facing):
     #Now draw on that image
     drawObject(blackImage, cube2D, facing) #Now black iamge has an outline of the cube
 
-    modelOutline = blackImage.copy()
+    modelOutline = blackImage.copy() #Create a copy to save
 
-    grayBlackImage = cv2.cvtColor(blackImage, cv2.COLOR_BGR2GRAY)
+    grayBlackImage = cv2.cvtColor(blackImage, cv2.COLOR_BGR2GRAY) #convert to a gray image
 
+    #conduct a threhsold with OTSU
     thresh, binary_img = cv2.threshold(grayBlackImage, thresh=0, maxval=255, type=cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
+    #Find the countours of the model outline (easy)
     cnts, heiarchy = cv2.findContours(binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    #cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+    #and fill the polynomial in a white color, generating the mask
     cv2.fillPoly(blackImage, cnts, [255, 255, 255])
 
     return blackImage, modelOutline #Return the mask image

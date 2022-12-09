@@ -1,3 +1,4 @@
+#Authors: Michael Shoenberger, Scott Crowner
 
 import numpy as np
 import cv2
@@ -10,44 +11,25 @@ def edgeDetection(grayBlurredImage, modelOutline, colorImage):
     flippedOutline = cv2.bitwise_not(modelOutline)
     cv2.imshow("flipped", flippedOutline)
 
-
-    #for t in range(30, 150, 20):
-    #    low_thresh = t
-    #    high_thresh = t
-    #    print("low_thresh = %d, high_thresh = %d" % (low_thresh, high_thresh))
-    #    edge_img = cv2.Canny(grayBlurredImage, low_thresh, high_thresh, L2gradient=True)
-    #    cv2.imshow("Edge image", edge_img)
-    #    cv2.waitKey(0)
-
-    #for t in range(0, 150, 1):
-    #    for dividor in range(1,5):
-    #        for multiplier in range(1, 3):
-    #
-    #
-    #               low_thresh = t/dividor
-    #            high_thresh = t * multiplier
-    #            print("low_thresh = %d, high_thresh = %d, divisor = %d, multiplier = %d" % (low_thresh, high_thresh, dividor, multiplier))
-    #            #low_thresh = 100, high_thresh = 100, divisor = 1, multiplier = 1
-    #            edge_img = cv2.Canny(grayBlurredImage, low_thresh, high_thresh, L2gradient=True)
-    #            cv2.imshow("Edge image", edge_img)
-    #            cv2.waitKey(0)
-    #Used to make my algorithm logic fit with the drag bar work
-
-
+    #Setup window properties and trackbar properties for the canny edge detection process
     cv2.namedWindow("Edge image")  # Make window
-    cv2.createTrackbar("t", "Edge image", 8, 220, nothing)
+    cv2.createTrackbar("t", "Edge image", 33, 220, nothing)
     cv2.createTrackbar("dividor", "Edge image", 1, 5, nothing)
     cv2.setTrackbarMin("dividor", "Edge image", 1)
     cv2.createTrackbar("multiplier", "Edge image", 2, 3, nothing)
     cv2.setTrackbarMin("multiplier", "Edge image", 1)
+
+    #Until the user presses a button to leave the image
     while True:
+
+        #Set a threshold along with a multiplier and divider
         t = cv2.getTrackbarPos("t", "Edge image")
         dividor = cv2.getTrackbarPos("dividor", "Edge image")
         multiplier = cv2.getTrackbarPos("multiplier", "Edge image")
         low_thresh = t / dividor
         high_thresh = t * multiplier
-        # print("low_thresh = %d, high_thresh = %d, divisor = %d, multiplier = %d" % (low_thresh, high_thresh, dividor, multiplier))
-        # low_thresh = 100, high_thresh = 100, divisor = 1, multiplier = 1
+
+        #condcut the canny process using the slide bar process
         edge_img = cv2.Canny(grayBlurredImage, low_thresh, high_thresh, L2gradient=True)
         cv2.imshow("Edge image", edge_img)
         if not cv2.waitKey(100) == -1:  # On button press:
@@ -57,6 +39,8 @@ def edgeDetection(grayBlurredImage, modelOutline, colorImage):
     # The 3rd dimension has the line segment endpoints: x0,y0,x1,y1.
     MIN_HOUGH_VOTES_FRACTION = 0.020
     MIN_LINE_LENGTH_FRACTION = 0.0000001
+
+    #Condcut the hough line process to generate a list of lines detected in the image
     houghLines = cv2.HoughLinesP(
             image=edge_img,
             rho=1,
@@ -66,6 +50,7 @@ def edgeDetection(grayBlurredImage, modelOutline, colorImage):
             minLineLength=int(edge_img.shape[1] * MIN_LINE_LENGTH_FRACTION),
             maxLineGap=10)
 
+    #Print out how many line segments were found
     print("Found %d line segments" % len(houghLines))
 
     # For visualizing the lines, draw the original image.
@@ -73,20 +58,26 @@ def edgeDetection(grayBlurredImage, modelOutline, colorImage):
         l = houghLines[i][0]
         cv2.line(colorImage, (l[0], l[1]), (l[2], l[3]), (0, 0, 255),
                  thickness=1, lineType=cv2.LINE_AA)
+
+    #Show the hough lines drawn on the original picture
     cv2.imshow("edges", colorImage)
     cv2.waitKey(0)
 
 
     #Michael's technique to take the edge image, filter out the outline, to get only details on the object faces
 
-
+    #Conduct canny on the same process and save it to a new file
     filteredEdge_img = cv2.Canny(grayBlurredImage, low_thresh, high_thresh, L2gradient=True)
 
+    #Convert color to gray and conduct a mask over it
     flippedOutline = cv2.cvtColor(flippedOutline, cv2.COLOR_BGR2GRAY)
     filteredEdge_img = cv2.bitwise_and(filteredEdge_img, filteredEdge_img, mask=flippedOutline)
+
+    #See the results of our edge mask to get the face image for VOID algorithm
     cv2.imshow("filtered edge",filteredEdge_img)
     cv2.waitKey(0)
 
+    #Return the VOID filtered image, and the hough lines for the linear coorelation algorithm
     return filteredEdge_img, houghLines
 
 # Nothing function

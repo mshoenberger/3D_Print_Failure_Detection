@@ -1,12 +1,12 @@
-
+#Authors: Michael Shoenberger, Scott Crowner
+#File focused on importing images from a folder
 
 import cv2
 import glob
 import numpy as np
 import os
 
-IMAGE_DIRECTORY = 'new_print_failure_detection_images' #File path for the images we will use from current file
-
+IMAGE_DIRECTORY = 'print_failure_detection_images' #File path for the images we will use from current file
 
 #Function to bring in file and ensure that error checking is done for improper file paths, etc
 def importImageNames():
@@ -18,12 +18,11 @@ def importImageNames():
     image_file_names = glob.glob(os.path.join(IMAGE_DIRECTORY, "*.jpg"))
     assert (len(image_file_names) > -0)
 
+    #Return the list of file names
     return image_file_names
 
 
-
-
-
+#Function to conduct the size thresholding of 25% onto the images. Prevents too large of images
 def generateBaseImages(image_name):
 
     #Read in the current image that we want to analyze

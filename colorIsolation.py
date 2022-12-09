@@ -1,4 +1,4 @@
-
+#Authors: Michael Shoenberger, Scott Crowner
 
 import cv2
 import numpy as np
@@ -18,6 +18,39 @@ def colorIsolate(bgr_image, print_color, totalCount):
         #Set the thresholds to the values that are best associated with the color gray
         lowThreshold = np.array([8, 0, 143])
         highThreshold = np.array([138, 75, 242])
+
+    elif print_color == "dark gray":
+
+        #Set the thresholds to the values that are best associated with the color gray
+        lowThreshold = np.array([84, 0, 59])
+        highThreshold = np.array([138, 75, 242])
+
+    elif print_color == "white":
+        #Set the thresholds to the values that are best associated with the color white
+        #lowThreshold = np.array([55, 0, 163])
+        #highThreshold = np.array([110, 33, 242])
+
+        lowThreshold = np.array([6, 27, 118])
+        highThreshold = np.array([29, 121, 255])
+
+    elif print_color == "red":
+        #Set the thresholds to the values that are best associated with the color red
+        lowThreshold = np.array([104, 118, 81])
+        highThreshold = np.array([179, 255, 255])
+
+    elif print_color == "blue":
+        #Set the thresholds to the values that are best associated with the color blue
+        lowThreshold = np.array([29, 52, 188])
+        highThreshold = np.array([136, 255, 255])
+
+    elif print_color == "green":
+        #Set the thresholds to the values that are best associated with the color green
+        lowThreshold = np.array([34, 78, 88])
+        highThreshold = np.array([80, 255, 255])
+
+    else:
+        print("UNDEFINED PRINT COLOR. RETURNING")
+        return -1
 
 
 
@@ -41,15 +74,17 @@ def colorIsolate(bgr_image, print_color, totalCount):
 
     numberColoredPixels = np.sum(result != 0)
 
-
+    #Calculate the fraction as a percentage
     fractionalFound = numberColoredPixels / totalCount
     percentFound = fractionalFound * 100
 
+    #Print the percentage found
     print("Color Isolation Percent found")
     print(percentFound)
 
+    #Set teh 60% Threshold vlaue that we want, return true if above
     if percentFound >= 60:
         return True
 
-
+    #else we return false
     return False

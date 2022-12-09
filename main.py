@@ -24,7 +24,7 @@ from compareLines import compareLines
 #########################################################################################
 #GLOBAL VARIABLES, USED TO HAVE A LOCATION TO EASILY MODIFY
 # Hard coded a cube model, used to represent an input file with faces defined and a normal vector for each face
-h = 0.5
+h = .7
 cube = np.array([[[0, 0, -1],
                   [0.5, 0.5, 0],
                   [0.5, -0.5, 0],
@@ -54,7 +54,9 @@ cube = np.array([[[0, 0, -1],
                   [0.5, 0.5, h],
                   [0.5, -0.5, h],
                   [-0.5, -0.5, h],
-                  [-0.5, 0.5, h]]])*1.5
+                  [-0.5, 0.5, h]]])
+
+filamentColor = "dark gray"
 
 
 #MAIN METHOD
@@ -66,7 +68,7 @@ def main():
     imageNameList = importImageNames()
 
     #Get the normal image, the gray image, threshold image, and generate a HSV image
-    defaultImage = generateBaseImages(imageNameList[3])
+    defaultImage = generateBaseImages(imageNameList[7])
     defaultCopy = defaultImage.copy()
 
 
@@ -110,16 +112,14 @@ def main():
 
     # Now to use a naive method to check if the object is in the bounded area... CHECK FOR COLOR!
     # Isolate the color and see how many pixels there are of that color
-    conductColorIsolation = True
+    conductColorIsolation = True #If we decide to conduct the color isolation algorithm
     if conductColorIsolation:
-        filamentColor = "gray"
-        isObjectThere = colorIsolate(maskedImage, filamentColor, colorIsolateWhiteCount)
+        isObjectThere = colorIsolate(maskedImage, filamentColor, colorIsolateWhiteCount) #Condcut logic to test if the object is there
 
-        if not isObjectThere:
+        if not isObjectThere: #If it isn't there we print an error
             print("OBJECT NOT IN FRAME VIA COLOR ISOLATION METHOD. PRINT FAILURE DETECTED")
-        else:
+        else: #Else we print that the object is in frame, indicating success
             print("Object is reasonably intuited to be in frame, continuing program")
-
 
 
     # Make gray blurred image from isolated image for edge detection
@@ -136,13 +136,13 @@ def main():
         src=grayMask,
         ksize=(0, 0),  # kernel size (should be odd numbers; if 0, compute it from sigma)
         sigmaX=sigma, sigmaY=sigma)
+
+    #Show the process of the gray image at the current state
     cv2.imshow("show gray", grayMask)
     cv2.waitKey(0)
 
-
     #Now to generate the edge image
     edge_image, houghLines = edgeDetection(grayMask, outline, userImage)
-
 
     #Now to conduct the analysis of the data and return a failure or not
     if isFailure(edge_image, maskPixelCount):
@@ -152,8 +152,9 @@ def main():
         print("NO FAILURE DETECTED")
         failedPixel = False
 
-    failedLines = compareLines(houghLines, modelLines)
+    failedLines = compareLines(houghLines, modelLines) #Check the lines from hough and the model, will provide linear coorelation boolean output
 
+    #If one algorithm failed, return the fact that we failed as a decision, else we did not fail
     failedFinal = failedPixel or failedLines
     if failedFinal == True:
         print("FINAL DECISION: FAILED")

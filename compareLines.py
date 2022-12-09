@@ -1,3 +1,4 @@
+#Authors: Michael Shoenberger, Scott Crowner
 # Compares Hough lines to model lines to determine how many match up
 
 import numpy as np
@@ -41,6 +42,7 @@ def compareLines(hough, model):
     #print("hTruths:", hTruth)
     nonMatches = np.count_nonzero(mTruth==0) + np.count_nonzero(hTruth==0)
     print("number of non-matches:", nonMatches)
+    print("LINE METHOD")
     if nonMatches > 9:
         print("PRINT FAILURE DETECTED")
         failed = True
