@@ -1,9 +1,12 @@
-#Authors: Michael Shoenberger and Scott Crowner
+# White Pixel Counter
+# Authors: Michael Shoenberger and Scott Crowner
 
 import numpy as np
 import cv2
 
-#Used to find the count of white pixels when eliminating white pixels that are of the model outline. This will help be more realistic to the analysis done later on
+# Used to find the count of white pixels when eliminating white pixels that are of the model outline. This will help be more realistic to the analysis done later on
+# INPUTS: mask, outline
+# OUTPUTS: number of pixels
 def obtainWhiteCount(blackMask, outline):
 
     #Copy so we don't modify the OG version
@@ -28,7 +31,7 @@ def obtainWhiteCount(blackMask, outline):
     return maskPixelCount
 
 
-#return teh number of pixels of a generic image that are wight
+# return the number of pixels of a generic image that are wight
 def countWhitePixels(image):
     return np.sum(image == 255)
 

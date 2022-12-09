@@ -1,10 +1,12 @@
-#Authors: Michael Shoenberger, Scott Crowner
+# Color isolation
+# Authors: Michael Shoenberger, Scott Crowner
 
 import cv2
 import numpy as np
 
-
-#Function to conduct color isolation as developed over the weekend, it
+# Function to conduct color isolation - part of VOID
+# INPUTS: image, color of filament, number of pixels in mask
+# OUTPUTS: decision on whether print has detatched from the print bed
 def colorIsolate(bgr_image, print_color, totalCount):
 
 

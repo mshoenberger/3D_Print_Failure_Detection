@@ -1,9 +1,12 @@
-#Authors: Michael Shoenberger, Scott Crowner
+# VOID generate masked image
+# Authors: Michael Shoenberger, Scott Crowner
 
 import numpy as np
 import cv2
 
-#Simple function to generate a bitwise mask for the VOID algorithm
+# Simple function to generate a bitwise mask for the VOID algorithm
+# INPUTS: original image, mask
+# OUTPUTS: masked image
 def generateMaskedImage(normalImage, maskImage):
 
     #Take the actual mask and the normal image

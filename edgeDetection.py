@@ -1,10 +1,13 @@
-#Authors: Michael Shoenberger, Scott Crowner
+# Edge detection
+# Authors: Michael Shoenberger, Scott Crowner
 
 import numpy as np
 import cv2
 import math
 
-#Function to conduct the edge detection process
+# Function to conduct the edge detection process
+# INPUTS: Gaussian blurred gray isolated image, 2D coordintate list of model, original color image
+# OUTPUTS: Canny edge image, Hough lines
 def edgeDetection(grayBlurredImage, modelOutline, colorImage):
 
     #Make the outline a flipped color so it is mostly white, will be used to mask the corner edges off

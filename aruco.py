@@ -1,12 +1,12 @@
-#Authors: Michael Shoenberger, Scott Crowner
+# ArUco detection
+# Authors: Michael Shoenberger, Scott Crowner
 
-#Import CV2 and numpy modules for use in our anlaysis
 import cv2
 import numpy as np
 
-
-#FUNCTION TO HANDLE DETECTION OF THE ARUCO MARKERS
-#RETURNS: Marker ID, rvec_m_c, tm_c
+# FUNCTION TO HANDLE DETECTION OF THE ARUCO MARKERS
+# INPUTS: image, intrinsic camera matrix K
+# OUTPUTS: Marker ID, rotation vector, translation vector
 #  PRIORITIZES MARKER 0, ELSE RETURNS MARKER 1
 #  IF MARKER 0 OR MARKER 1 ARE NOT IN THERE, IT RETURNS -1, -1, -1 to indicate an image without any 0 or 1 ID aruco markers
 def arucoSetup(bgr_img, cube, K):

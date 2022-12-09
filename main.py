@@ -1,14 +1,19 @@
-#Authors: Michael Shoenberger, Scott Crowner
-#Final Project: Print Error Detector
+# CSCI 507 Final Project: Print Error Detector
+# Authors: Michael Shoenberger, Scott Crowner
+# Colorado School of Mines
 
+# Description:
+# Main code; calls on other functions in the project to run a complete failure detection
+# Uses edge detection and HSV color thresholds to determine whether an image of an FDM print has failed.
+# INPUTS: nothing
+# OUTPUTS: final print failure decision
 #########################################################################################
-#Import the required libraries and other functionality desired
+# Import the required libraries and other functionality desired
 
 import cv2
 import numpy as np
-import math
 
-#IMPORT THE FUNCTIONS FROM FILES, USED TO PREVENT GITHUB COLLABORATION ISSUES AND TO PROMOTE SMALL BLOCKS OF FUNCTIONALITY FOR DEBUGGING/EXPANSION
+# IMPORT THE FUNCTIONS FROM FILES, USED TO PREVENT GITHUB COLLABORATION ISSUES AND TO PROMOTE SMALL BLOCKS OF FUNCTIONALITY FOR DEBUGGING/EXPANSION
 from printSTL import printSTL
 from colorIsolation import colorIsolate
 from aruco import arucoSetup
@@ -22,9 +27,11 @@ from compareLines import compareLines
 
 
 #########################################################################################
-#GLOBAL VARIABLES, USED TO HAVE A LOCATION TO EASILY MODIFY
-# Hard coded a cube model, used to represent an input file with faces defined and a normal vector for each face
-h = .7
+# GLOBAL VARIABLES, USED TO HAVE A LOCATION TO EASILY MODIFY
+# Hard coded a cube model, used to represent an input file with faces defined and a normal vector for each face.
+# Each page represents a face. The first row of each page is the 3D cartesian normal vector and the rest of the rows are
+# 3D cartesian coordinates of points that make up the face, in order going counterclockwise from an outside perspective.
+h = .7  # defines print height/progress through print
 cube = np.array([[[0, 0, -1],
                   [0.5, 0.5, 0],
                   [0.5, -0.5, 0],
@@ -59,54 +66,54 @@ cube = np.array([[[0, 0, -1],
 filamentColor = "dark gray"
 
 
-#MAIN METHOD
+# MAIN METHOD
 
-#Main method to conduct the process
+# Main method to conduct the process
 def main():
 
-    #Get the image names for a folder as specific in the importImageNames function
+    # Get the image names for a folder as specific in the importImageNames function
     imageNameList = importImageNames()
 
-    #Get the normal image, the gray image, threshold image, and generate a HSV image
+    # Get the normal image, the gray image, threshold image, and generate a HSV image
     defaultImage = generateBaseImages(imageNameList[7])
     defaultCopy = defaultImage.copy()
 
 
-    #Get image dimensions, may have value later
+    # Get image dimensions, may have value later
     imageHeight = defaultImage.shape[0]
     imageWidth = defaultImage.shape[1]
 
-    #Define camera matrix, was derrived from the camera calibration technqiues/scripts provided in lecture
+    # Define camera matrix, was derrived from the camera calibration technqiues/scripts provided in lecture
     K = np.array([[710.0, 0.0, np.shape(defaultImage)[1] / 2],  # Intrinsic camera properties matrix for calculating pose
                   [0.0, 700.0, np.shape(defaultImage)[0] / 2],
                   [0.0, 0.0, 1.0]])
 
 
-    #Conduct aruco setup and capture the aruco ID of interest, along with the rvec_m_c and tm_c
+    # Conduct aruco setup and capture the aruco ID of interest, along with the rvec_m_c and tm_c
     markerID, rvec_m_c, tm_c = arucoSetup(defaultImage,cube, K)
 
 
-    #At this point, we are getting a transition that is not good
+    # At this point, we are getting a transition that is not good
 
     if(markerID == -1):
         print("ERROR: NO MARKER DETECTED. IN A VIDEO THIS WOULD JUST MOVE TO NEXT FRAME OR END THIS ITERATION")
 
 
-    #Now that we have the aruco ID and the respective marker properties, conduct printSTL to draw the STL object
+    # Now that we have the aruco ID and the respective marker properties, conduct printSTL to draw the STL object
     userImage, blackMask, outline, modelLines = printSTL(defaultImage, cube, K, markerID, rvec_m_c, tm_c)
 
 
-    #Generate the white pixel count of the black mask, so we know how many pixels we have for color isolation
+    # Generate the white pixel count of the black mask, so we know how many pixels we have for color isolation
     colorIsolateWhiteCount = countWhitePixels(blackMask)
 
-    #Obtain the number of pixels used actually allowed by the mask, will be used for later error detection algorithm
+    # Obtain the number of pixels used actually allowed by the mask, will be used for later error detection algorithm
     maskPixelCount = obtainWhiteCount(blackMask, outline)
 
     print("number of white Pixels is: " + str(maskPixelCount))
 
 
-    #At this point we have the current image with the end model drawn on it
-    #And at this point we have a black mask that can be used to isolate the rest of the image, lets work on that next
+    # At this point we have the current image with the end model drawn on it
+    # And at this point we have a black mask that can be used to isolate the rest of the image, lets work on that next
 
     maskedImage = generateMaskedImage(defaultCopy, blackMask)
 
@@ -116,9 +123,9 @@ def main():
     if conductColorIsolation:
         isObjectThere = colorIsolate(maskedImage, filamentColor, colorIsolateWhiteCount) #Condcut logic to test if the object is there
 
-        if not isObjectThere: #If it isn't there we print an error
+        if not isObjectThere: # If it isn't there we print an error
             print("OBJECT NOT IN FRAME VIA COLOR ISOLATION METHOD. PRINT FAILURE DETECTED")
-        else: #Else we print that the object is in frame, indicating success
+        else: # Else we print that the object is in frame, indicating success
             print("Object is reasonably intuited to be in frame, continuing program")
 
 
@@ -130,21 +137,21 @@ def main():
     # cv2.waitKey(0)
 
 
-    #Convert masked image to a gray image
+    # Convert masked image to a gray image
     sigma = 1
     grayMask = cv2.GaussianBlur(
         src=grayMask,
         ksize=(0, 0),  # kernel size (should be odd numbers; if 0, compute it from sigma)
         sigmaX=sigma, sigmaY=sigma)
 
-    #Show the process of the gray image at the current state
+    # Show the process of the gray image at the current state
     cv2.imshow("show gray", grayMask)
     cv2.waitKey(0)
 
-    #Now to generate the edge image
+    # Now to generate the edge image
     edge_image, houghLines = edgeDetection(grayMask, outline, userImage)
 
-    #Now to conduct the analysis of the data and return a failure or not
+    # Now to conduct the analysis of the data and return a failure or not
     if isFailure(edge_image, maskPixelCount):
         print("PRINT FAILURE DETECTED")
         failedPixel = True
@@ -152,9 +159,9 @@ def main():
         print("NO FAILURE DETECTED")
         failedPixel = False
 
-    failedLines = compareLines(houghLines, modelLines) #Check the lines from hough and the model, will provide linear coorelation boolean output
+    failedLines = compareLines(houghLines, modelLines) # Check the lines from hough and the model, will provide linear coorelation boolean output
 
-    #If one algorithm failed, return the fact that we failed as a decision, else we did not fail
+    # If one algorithm failed, return the fact that we failed as a decision, else we did not fail
     failedFinal = failedPixel or failedLines
     if failedFinal == True:
         print("FINAL DECISION: FAILED")
@@ -162,6 +169,6 @@ def main():
         print("FINAL DECISION: NOT FAILED")
 
 
-#Used to assist in the use of a main function, tells where to point
+# Used to assist in the use of a main function, tells where to point
 if __name__ == "__main__":
         main()

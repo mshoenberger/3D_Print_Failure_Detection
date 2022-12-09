@@ -1,5 +1,5 @@
-#Authors: Michael Shoenberger, Scott Crowner
-#File focused on importing images from a folder
+# Authors: Michael Shoenberger, Scott Crowner
+# File focused on importing images from a folder
 
 import cv2
 import glob
@@ -8,7 +8,9 @@ import os
 
 IMAGE_DIRECTORY = 'print_failure_detection_images' #File path for the images we will use from current file
 
-#Function to bring in file and ensure that error checking is done for improper file paths, etc
+# Function to bring in file and ensure that error checking is done for improper file paths, etc
+# INPUTS: nothing
+# OUTPUTS: list of image file names including relative location
 def importImageNames():
 
     #First, ensure that the directory exits or else we we cannot use the images located there
@@ -22,7 +24,9 @@ def importImageNames():
     return image_file_names
 
 
-#Function to conduct the size thresholding of 25% onto the images. Prevents too large of images
+# Function to conduct the size thresholding of 25% onto the images. Prevents too large of images
+# INPUTS: image name index
+# OUTPUTS: image
 def generateBaseImages(image_name):
 
     #Read in the current image that we want to analyze

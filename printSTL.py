@@ -1,10 +1,15 @@
-#Authors: Michael Shoenberger and Scott Crowner
+# Print STL
+# Authors: Michael Shoenberger and Scott Crowner
+
+# File to visually render a 3D model using OpenCV
 
 import numpy as np
 import cv2
 
 
-#Function used to print the STL file
+# Function used to print an opaque rendering of the model or "STL file" given a pose
+# INPUTS: original image, model, intrinsic camera matrix K, ArUco ID, ArUco rotation vector, ArUco translation vector
+# OUTPUTS: image with model overlayed, line rendering of model, shillouette mask of model, list of model line endpoints
 def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
     # Choose translation based on marker
     #MARKER_0_TRANSLATION = np.array([4.0, 4.0, 0.0])  # translation vector from marker 0
@@ -23,26 +28,31 @@ def printSTL(bgr_img, cube, K, id, rvec_m_c, tm_c):
     Mext[:, 0:3] = R
     Mext[:, 3] = tm_c
 
+    # Preallocate spece for 2D line end points and visible face truth list
     cube2D = np.zeros(np.shape(cube)-np.array([0,0,1]))
     facing = []
+    # Iterate through model faces
     for i in range(np.shape(cube[:,0,0])[0]):
-        rot_vec = R @ cube[i,0,:]
-        if rot_vec[2] < 0:
+        rot_vec = R @ cube[i,0,:]   # apply 3D to 3D rotation to face points and face normal vector
+        if rot_vec[2] < 0:          # if z component of the face normal vector is negative (facing camera), add True
             facing.append(True)
         else:
-            facing.append(False)
+            facing.append(False)    # otherwise, False
+        # Iterate through face points
         for j in range(np.shape(cube[0,:,0])[0]):
-            moved_cube = cube[i,j,:] + t
+            moved_cube = cube[i,j,:] + t    # apply translation
             cube2D[i,j,:] = transform3Dto2D(K, Mext, moved_cube)  # Transform from 3D coordinates to 2D coordinates
 
     modelLines = drawObject(bgr_img, cube2D, facing)  # Draw cube, will represent the image that the user will see
-    mask, outline = generateBlackImage(bgr_img,cube2D, facing) #Generate a mask for isolating the print, computer will see this
+    mask, outline = generateBlackImage(bgr_img,cube2D, facing) # Generate a mask for isolating the print, computer will see this
 
     return bgr_img, mask, outline, modelLines
 
 ######################################
 
-#Function to conduct the transformation from 3D to 2D space. Taken from class lecture content
+# Function to conduct the transformation from 3D to 2D space. Taken from class lecture content
+# INPUTS: intrinsic camera matrix K, extrinsic camera matrix M, 3D point to tranform
+# OUTPUTS: 2D point
 def transform3Dto2D(K, Mext, points):
     # Transforms 3D coordinates to 2D coordinates given intrinsic and extrinsic camera matrices
     # Make point homogenous vector
@@ -62,7 +72,9 @@ def transform3Dto2D(K, Mext, points):
 
 ######################################
 
-#Special rendering function used to draw the object onto the screen
+# Special rendering function used to draw the object onto the image
+# INPUTS: image, 2D model points, visible face truth matrix
+# OUTPUTS: 2D model line list, drawing on image
 def drawObject(image, model, facing):
     # Connects the points of a face based model, not drawing hidden faces.
     t = 2 # line thickness
@@ -78,9 +90,11 @@ def drawObject(image, model, facing):
     return modelLines
 
 
-#Function to generate a black background with the fireframe image in the location where it should be
-#Filled in a solid color, etc
-#Modified function that is meant to provide a copy of the hard coded computer model in black and white
+# Function to generate a black background with the wireframe image in the location where it should be
+# Filled in a solid color, etc
+# Modified function that is meant to provide a copy of the hard coded computer model in black and white
+# INPUTS: image, 2D model lines, visible lines truth matrix
+# OUTPUTS: mask, somethin else
 def generateBlackImage(bgr_img, cube2D, facing):
     print("generating black image")
 

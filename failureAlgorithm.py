@@ -1,9 +1,12 @@
-#Authors: Michael Shoenberger, Scott Crowner
+# VOID failure determination
+# Authors: Michael Shoenberger, Scott Crowner
 
 import numpy as np
 import cv2
 
-#file to help with detection of if a failure occured in the VOID algorithm
+# Function to help with detection of if a failure occured in the VOID algorithm
+# INPUTS: canny edge image, number of white pixels in canny edge image
+# OUTPUTS: print failure decision
 def isFailure(edge_image, whiteMaxCount):
 
     #Generate how many white pixels ARE found
